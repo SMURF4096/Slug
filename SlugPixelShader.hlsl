@@ -1,6 +1,6 @@
 // ===================================================
 // Reference pixel shader for the Slug algorithm.
-// This code is made available under the MIT License.
+// SPDX-License-Identifier: MIT OR Apache-2.0
 // Copyright 2017, by Eric Lengyel.
 // ===================================================
 
@@ -16,7 +16,7 @@
 
 uint CalcRootCode(float y1, float y2, float y3)
 {
-	// Calculate the root eligibility code for a sample-relative quadratic Bézier curve.
+	// Calculate the root eligibility code for a sample-relative quadratic BÃ©zier curve.
 	// Extract the signs of the y coordinates of the three control points.
 
 	uint i1 = asuint(y1) >> 31U;
@@ -173,7 +173,7 @@ float SlugRender(Texture2D curveData, Texture2D<uint4> bandData, float2 renderCo
 		// Fetch the three 2D control points for the current curve from the curve texture.
 		// The first texel contains both p1 and p2 in the (x,y) and (z,w) components, respectively,
 		// and the the second texel contains p3 in the (x,y) components. Subtracting the render
-		// coordinates makes the curve relative to the sample position. The quadratic Bézier curve
+		// coordinates makes the curve relative to the sample position. The quadratic BÃ©zier curve
 		// C(t) is given by
 		//
 		//     C(t) = (1 - t)^2 p1 + 2t(1 - t) p2 + t^2 p3
