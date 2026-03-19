@@ -1,6 +1,6 @@
 // ===================================================
 // Reference pixel shader for the Slug algorithm.
-// SPDX-License-Identifier: MIT OR Apache-2.0
+// This code is made available under the MIT License.
 // Copyright 2017, by Eric Lengyel.
 // ===================================================
 
@@ -16,7 +16,7 @@
 
 uint CalcRootCode(float y1, float y2, float y3)
 {
-	// Calculate the root eligibility code for a sample-relative quadratic BÃ©zier curve.
+	// Calculate the root eligibility code for a sample-relative quadratic Bézier curve.
 	// Extract the signs of the y coordinates of the three control points.
 
 	uint i1 = asuint(y1) >> 31U;
@@ -74,7 +74,11 @@ float2 SolveVertPoly(float4 p12, float2 p3)
 	float t1 = (b.x - d) * ra;
 	float t2 = (b.x + d) * ra;
 
+	// If the polynomial is nearly linear, then solve -2b t + c = 0.
+
 	if (abs(a.x) < 1.0 / 65536.0) t1 = t2 = p12.x * rb;
+
+	// Return the y coordinates where C(t) = 0.
 
 	return (float2((a.y * t1 - b.y * 2.0) * t1 + p12.y, (a.y * t2 - b.y * 2.0) * t2 + p12.y));
 }
@@ -173,7 +177,7 @@ float SlugRender(Texture2D curveData, Texture2D<uint4> bandData, float2 renderCo
 		// Fetch the three 2D control points for the current curve from the curve texture.
 		// The first texel contains both p1 and p2 in the (x,y) and (z,w) components, respectively,
 		// and the the second texel contains p3 in the (x,y) components. Subtracting the render
-		// coordinates makes the curve relative to the sample position. The quadratic BÃ©zier curve
+		// coordinates makes the curve relative to the sample position. The quadratic Bézier curve
 		// C(t) is given by
 		//
 		//     C(t) = (1 - t)^2 p1 + 2t(1 - t) p2 + t^2 p3
@@ -228,6 +232,11 @@ float SlugRender(Texture2D curveData, Texture2D<uint4> bandData, float2 renderCo
 		int2 curveLoc = int2(TexelLoad2D(bandData, int2(vbandLoc.x + curveIndex, vbandLoc.y)).xy);
 		float4 p12 = TexelLoad2D(curveData, curveLoc) - float4(renderCoord, renderCoord);
 		float2 p3 = TexelLoad2D(curveData, int2(curveLoc.x + 1, curveLoc.y)).xy - renderCoord;
+
+		// If the largest y coordinate among all three control points falls
+		// below the current pixel, then there are no more curves in the
+		// vertical band that can influence the result, so exit the loop.
+		// (The curves are sorted in descending order by max y coordinate.)
 
 		if (max(max(p12.y, p12.w), p3.y) * pixelsPerEm.y < -0.5) break;
 
